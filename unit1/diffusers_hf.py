@@ -1,6 +1,3 @@
-# from huggingface_hub import login
-
-import os
 import numpy as np
 import torch
 import torchvision
@@ -13,8 +10,6 @@ from diffusers import DDPMScheduler
 from diffusers import UNet2DModel
 from diffusers import DDPMPipeline
 
-
-# login(token='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', add_to_git_credential=True)
 
 
 def show_images(x):
@@ -147,16 +142,20 @@ def save_pipeline(image_size=32, timesteps=1000):
     pipeline.save_pretrained("pipeline")
 
 
-def test_model(pipeline_dir='pipeline', batch=1):
+def test_model(pipeline_dir='pipeline', batch=1, steps=1000):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     pipeline = DDPMPipeline.from_pretrained(pipeline_dir).to(device)
-    return pipeline(batch_size=batch).images
+    return pipeline(batch_size=batch, num_inference_steps=steps).images
 
 
 if __name__ == '__main__':
     # train_model(image_size=32, batch_size=16, epochs=30)
+    #
 
-    # save_pipeline(image_size=32)
+    # save_pipeline(image_size=32, timesteps=1000)
 
-    images = test_model(batch=1)
-    images[0].save('result.jpg', 'jpeg')
+
+    images = test_model(batch=5, steps=200)
+    for i in range(len(images)):
+        images[i].save(f'./results/hf_{i}.jpg', 'jpeg')
+
